@@ -1,0 +1,563 @@
+swagger: "2.0"
+info:
+  description: "A microservice called cloudwatch-logs-adapter observing AWS logs from different microservices. It serves a specific amount of last log lines of corresponding microservice identified by name. Ticket at [http://swagger.io](http://swagger.io)."
+  version: "1.0.0"
+  title: "Cloudwatch Logs Adapter"
+  contact:
+    email: "david.renner@consort-it.de"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "consort-it.de"
+basePath: "/api/v1/cloudwatch-logs-adapter"
+schemes:
+- "http"
+paths:
+  /groups:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive List of available LogGroups with metadata."
+      description: "This URI serves all available LogGroups in AWS CloudWatch. Each LogGroup contains a set of information except LogStream details."
+      operationId: "getGroups"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Group"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /groups/{gid}:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive a single LogGroup with metadata identified by Name given."
+      description: "This URI serves a sinle available LogGroup from AWS CloudWatch."
+      operationId: "getGroupByID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "gid"
+        in: "path"
+        description: "Group identifier"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Group"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /groups/{gid}/streams:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive List of available LogStreams with metadata of given LogGroup name."
+      description: "This URI serves all available LogStreams of an available LogGroups in AWS CloudWatch. Each LogStream contains a set of information except LogStream details."
+      operationId: "getStreamsByGroupID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "gid"
+        in: "path"
+        description: "Group identifier"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Stream"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /groups/{gid}/streams/{sid}:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive a single LogStream with metadata identified by Name and a LogGroup name given."
+      description: "This URI serves a single available LogStream from within the LogGroup that is identified by name and available from AWS CloudWatch."
+      operationId: "getStreamByIDByGroupID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "gid"
+        in: "path"
+        description: "Group identifier"
+        required: true
+        type: "string"
+      - name: "sid"
+        in: "path"
+        description: "Stream identifier"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+            items:
+              $ref: "#/definitions/Stream"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /groups/{gid}/streams/{sid}/logs:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive Logs of LogStream withing LogGroup."
+      description: "Serves Logs of Logstream identified by name within LogGroup identified by name with optionaly limit"
+      operationId: "getLogsByStreamIDByGroupID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "gid"
+        in: "path"
+        description: "Group identifier"
+        required: true
+        type: "string"
+      - name: "sid"
+        in: "path"
+        description: "Stream identifier"
+        required: true
+        type: "string"
+      - name: "limit"
+        in: "query"
+        description: "Logs Limit configuration"
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LogEntry"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /streams/{sid}:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive all LogStreams identifiable by name."
+      description: "Serves LogStreams matching name available from AWS CloudWatch."
+      operationId: "getStreamsByID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sid"
+        in: "path"
+        description: "Stream identifier"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+            items:
+              $ref: "#/definitions/Stream"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /streams/{sid}/logs:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive all Logs of LogStream identifiable by name."
+      description: "Serves Logs of LogStream matching name available from AWS CloudWatch."
+      operationId: "getLogsByStreamID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sid"
+        in: "path"
+        description: "Stream identifier"
+        required: true
+        type: "string"
+      - name: "limit"
+        in: "query"
+        description: "Logs Limit configuration"
+        type: "integer"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Logs"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /search/groups/{partial}:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive all LogGroups that contain given name."
+      description: "Serves LogGroups matching name available from AWS CloudWatch."
+      operationId: "getSearchedGroupsByPartialID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "partial"
+        in: "path"
+        description: "Partial identification for Group"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Group"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /search/streams/{partial}:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Receive all LogStreams that contain given name."
+      description: "Serves LogStreams matching name available from AWS CloudWatch."
+      operationId: "getSearchedStreamsByPartialID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "partial"
+        in: "path"
+        description: "Partial identification for Stream"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Stream"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /{microserviceName}:
+    get:
+      tags:
+      - "CloudwatchLogs"
+      summary: "Send your microservice name as partial of LogStream name and receive the most recent log file entries - default limit 20 log file entries."
+      description: "Send your microservice name and receive the most recent log file entries."
+      operationId: "getLogsByMicroService"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "microserviceName"
+        in: "path"
+        description: "Name of microservice which logs must be served"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LogEntry"
+        400:
+          description: "Client sent wrong or missed crucial information and should consider sending a proper request again."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Access is forbidden using given credentials."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Access is required but no Authentication information has been given."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: "Service did not behave well and made a mistake that caused itself to fail."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+definitions:
+  Group:
+    type: "object"
+    required:
+    - logGroupName
+    - creationTime
+    - arn
+    - storedBytes
+    properties:
+      logGroupName:
+        type: "string"
+        description: "Group identifier or name for finding this Group."
+      creationTime:
+        type: "string"
+        format: "date-time"
+        description: "Group Creation Time"
+      retentionInDays:
+        type: "integer"
+        format: "int64"
+        description: "Group Age in days"
+      metricFilterCount:
+        type: "integer"
+        format: "int64"
+        description: "Group metric filter count"
+      arn:
+        type: "string"
+        description: "Group Address Resolution Name"
+      storedBytes:
+        type: "integer"
+        format: "int64"
+        description: "Group Size in Storage"
+    xml:
+      name: "group"
+  Stream:
+    type: "object"
+    required:
+    - logStreamName
+    - creationTime
+    - firstEventTimestamp
+    - lastEventTimestamp
+    - uploadSequenceToken
+    - arn
+    - storedBytes
+    properties:
+      logStreamName:
+        type: "string"
+        description: "Stream identifier or name for finding this Stream."
+      creationTime:
+        type: "string"
+        format: "date-time"
+        description: "Stream Creation Time"
+      firstEventTimestamp:
+        type: "string"
+        format: "date-time"
+        description: "Stream information about first Event happened"
+      lastEventTimestamp:
+        type: "string"
+        format: "date-time"
+        description: "Stream information about last Event happened"
+      lastIngestionTime:
+        type: "string"
+        format: "date-time"
+        description: "Stream information about last Event stored in logs"
+      uploadSequenceToken:
+        type: "string"
+        description: "Stream upload sequence Token"
+      arn:
+        type: "string"
+        format: "date-time"
+        description: "Stream Address Resolution Name"
+      storedBytes:
+        type: "integer"
+        format: "int64"
+        description: "Stream Size in Storage"
+    xml:
+      name: "stream"
+  Logs:
+    type: "array"
+    items:
+      $ref: "#/definitions/LogEntry"
+    xml:
+      name: "logs"
+  LogEntry:
+    type: "object"
+    required:
+    - timestamp
+    - status
+    - message
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Log incident time"
+      status:
+        type: "string"
+        description: "Is this log containing critical information?"
+        enum:
+        - LOG
+        - INFO
+        - WARNING
+        - ERROR
+      message:
+        type: "string"
+        description: "Log message"
+    xml:
+      name: "log"
+  ErrorResponse:
+    type: object
+    required:
+    - status
+    - code
+    - message
+    - location
+    - time
+    properties:
+      code:
+        type: string
+        pattern: 'CLA-\d+$'
+        description: "This error code should have the format 'CLA-XXX' where XXX is an integer. It is used to uniquely distinguish different error cases in order to display a suitable and translatable error message on the UI."
+        example: "CLA-1234"
+      status:
+        type: integer
+        description: "Represents the http status error that goes along with this error."
+      message:
+        type: string
+        description: "Should contain a short, meaningful description of the error case. Might be displayed to the end user."
+        example: "Could not create service 'some-name' because this service already exists."
+      trace:
+        type: array
+        description: "Contains a trace of errors if available. Only use for forwarding to developer. In case this is missing as it is optional use location to identify where error happened originally."
+        items:
+          $ref: "#/definitions/TracePoint"
+      location:
+        type: string
+        description: "Field that indicates where the error occured. This is a mandatory field and should be considered in case trace is not available."
+      time:
+        type: "string"
+        format: "date-time"
+        description: "The exact time the error occured within microservice."
+  TracePoint:
+    type: "object"
+    required:
+    - methodName
+    - fileName
+    - lineNumber
+    - className
+    - nativeMethod
+    properties:
+      methodName:
+        type: "string"
+      fileName:
+        type: "string"
+      lineNumber:
+        type: "integer"
+      className:
+        type: "string"
+      nativeMethod:
+        type: "boolean"

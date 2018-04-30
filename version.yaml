@@ -1,0 +1,5 @@
+---
+build: '2'
+version: '20180316110616'
+commit: ''
+name: 'cloudwatch-logs-adapter'

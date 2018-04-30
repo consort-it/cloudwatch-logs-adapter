@@ -1,0 +1,42 @@
+{
+  "consumer": {
+    "name": "cme-ui"
+  },
+  "provider": {
+    "name": "cloudwatch-logs-adapter"
+  },
+  "interactions": [
+    {
+      "description": "a request to GET logs for microservice MICROSERVICE-NAME",
+      "providerState": "provider has logs for microservice with name MICROSERVICE-NAME",
+      "request": {
+        "method": "GET",
+        "path": "/api/v1/cloudwatch-logs-adapter/TEST",
+        "query": "nosec=1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": [
+          {
+            "timestamp": "2018-05-01T02:03:04.005Z",
+            "status": "INFO",
+            "message": "a log message"
+          }
+        ],
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

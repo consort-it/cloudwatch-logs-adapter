@@ -1,0 +1,15 @@
+FROM openjdk:8-jdk as builder
+
+WORKDIR /microservice
+
+ADD src src
+COPY build.gradle .
+COPY settings.gradle .
+COPY gradlew .
+ADD gradle gradle
+COPY swagger.yaml .
+
+RUN chmod -R 777 ./gradlew
+
+EXPOSE 8080
+EXPOSE 8081
